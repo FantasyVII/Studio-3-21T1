@@ -28,7 +28,9 @@ namespace Chat_App_21T1
                     listeningSocket.Listen(10);
                     Socket clientSocket = listeningSocket.Accept();
 
-                    clientSocket.Send(ASCIIEncoding.ASCII.GetBytes("Hello Client!"));
+                    string stringToSend = Console.ReadLine();
+
+                    clientSocket.Send(ASCIIEncoding.ASCII.GetBytes(stringToSend));
 
                     Byte[] recieveBuffer = new byte[1024];
                     clientSocket.Receive(recieveBuffer);
@@ -51,7 +53,8 @@ namespace Chat_App_21T1
                     socket.Receive(recieveBuffer);
                     Console.WriteLine(ASCIIEncoding.ASCII.GetString(recieveBuffer));
 
-                    socket.Send(ASCIIEncoding.ASCII.GetBytes("Hello Server!"));
+                    string stringToSend = Console.ReadLine();
+                    socket.Send(ASCIIEncoding.ASCII.GetBytes(stringToSend));
                 }
             }
             else
