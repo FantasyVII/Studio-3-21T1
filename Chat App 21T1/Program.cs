@@ -14,124 +14,45 @@ namespace Chat_App_21T1
         {
             if (args.Length > 0)
             {
-                if (args[0] == "-server")
+                switch (args[0])
                 {
-                    List<Socket> clientSockets = new List<Socket>();
-
-                    Socket listeningSocket;
-
-                    listeningSocket = new Socket(
-                        AddressFamily.InterNetwork,
-                        SocketType.Stream,
-                        ProtocolType.Tcp);
-
-                    listeningSocket.Blocking = false;
-                    listeningSocket.Bind(new IPEndPoint(IPAddress.Any, 420));
-                    Console.WriteLine("Waiting for connection...");
-                    listeningSocket.Listen(10);
-
-                    while (true)
-                    {
-                        try
+                    case "-server":
+                        if (args.Length >= 2)
                         {
-                            clientSockets.Add(listeningSocket.Accept());
+                            int port = -1;
+                            bool portParsed = int.TryParse(args[1], out port);
+
+                            if (!portParsed)
+                                throw new Exception("Arugment two should be a port number. The arguemnt provided was not a number");
+
+                            Server server = new Server(port);
+                            server.Start();
                         }
-                        catch (SocketException ex)
+                        else
+                            Console.WriteLine("Please provide one extra arguemnts to this application which is the port number. Example app.exe -server 420");
+                        break;
+
+                    case "-client":
+                        if (args.Length >= 3)
                         {
-                            if (ex.SocketErrorCode != SocketError.WouldBlock)
-                                Console.WriteLine(ex);
+                            IPAddress ipAddress;
+                            int port = -1;
+
+                            bool ipParsed = IPAddress.TryParse(args[1], out ipAddress);
+                            bool portParsed = int.TryParse(args[2], out port);
+
+                            if (!ipParsed)
+                                throw new Exception("Arugment two should be an IP Address. The arguemnt provided was not a valid ip address");
+
+                            if (!portParsed)
+                                throw new Exception("Arugment three should be a port number. The arguemnt provided was not a number");
+
+                            Client client = new Client(ipAddress, port);
+                            client.Start();
                         }
-
-                        for (int i = 0; i < clientSockets.Count; i++)
-                        {
-                            try
-                            {
-                                Byte[] recieveBuffer = new byte[4096];
-                                int bytesReceived = clientSockets[i].Receive(recieveBuffer);
-
-                                for (int j = 0; j < clientSockets.Count; j++)
-                                {
-                                    if (i != j)
-                                    {
-                                        clientSockets[j].Send(recieveBuffer, bytesReceived, SocketFlags.None);
-                                    }
-                                }
-                            }
-                            catch (SocketException ex)
-                            {
-                                if (ex.SocketErrorCode == SocketError.ConnectionAborted ||
-                                    ex.SocketErrorCode == SocketError.ConnectionReset)
-                                {
-                                    clientSockets[i].Close();
-                                    clientSockets.RemoveAt(i);
-                                }
-
-                                if (ex.SocketErrorCode != SocketError.WouldBlock)
-                                {
-                                    if (ex.SocketErrorCode != SocketError.ConnectionAborted || ex.SocketErrorCode != SocketError.ConnectionReset)
-                                    {
-                                        Console.WriteLine(ex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (args[0] == "-client")
-                {
-                    Socket socket;
-
-                    socket = new Socket(
-                        AddressFamily.InterNetwork,
-                        SocketType.Stream,
-                        ProtocolType.Tcp);
-
-                    Console.WriteLine("Connecting to server...");
-                    socket.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 420));
-                    socket.Blocking = false;
-                    Console.WriteLine("Connected to server!");
-
-                    Console.WriteLine("Please enter your nickname!");
-                    string nickName = Console.ReadLine();
-                    nickName += ": ";
-
-                    Console.WriteLine("Please type your message now!");
-                    string stringToSend = "";
-
-                    while (true)
-                    {
-                        try
-                        {
-                            if (Console.KeyAvailable)
-                            {
-                                ConsoleKeyInfo key = Console.ReadKey();
-
-                                if (key.Key == ConsoleKey.Enter)
-                                {
-                                    string message = nickName + stringToSend;
-                                    socket.Send(ASCIIEncoding.ASCII.GetBytes(message));
-                                    message = "";
-                                    Console.WriteLine();
-                                }
-                                else
-                                {
-                                    stringToSend += key.KeyChar;
-                                }
-                            }
-
-                            Byte[] recieveBuffer = new byte[4096];
-                            int receivedBytes = socket.Receive(recieveBuffer);
-                            string strinToPrint = ASCIIEncoding.ASCII.GetString(recieveBuffer);
-                            strinToPrint = strinToPrint.Substring(0, receivedBytes);
-
-                            Console.WriteLine(strinToPrint);
-                        }
-                        catch (SocketException ex)
-                        {
-                            if (ex.SocketErrorCode != SocketError.WouldBlock)
-                                Console.WriteLine(ex);
-                        }
-                    }
+                        else
+                            Console.WriteLine("Please provide two extra arguemnts to this application which are the ip address and port number. Example app.exe -client 127.0.0.1 420");
+                        break;
                 }
             }
             else
