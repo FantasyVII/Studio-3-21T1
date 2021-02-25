@@ -42,7 +42,7 @@ namespace Chat_App_21T1
                     Console.WriteLine("Your input was not a valid number, please try again");
                 else
                 {
-                    if (colorNumber < colorNames.Length - 1)
+                    if (colorNumber <= colorNames.Length)
                     {
                         return colorNumber;
                     }

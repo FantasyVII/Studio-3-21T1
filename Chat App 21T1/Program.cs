@@ -33,7 +33,7 @@ namespace Chat_App_21T1
                         break;
 
                     case "-client":
-                        if (args.Length >= 3)
+                        if (args.Length >= 4)
                         {
                             IPAddress ipAddress;
                             int port = -1;
@@ -47,7 +47,7 @@ namespace Chat_App_21T1
                             if (!portParsed)
                                 throw new Exception("Arugment three should be a port number. The arguemnt provided was not a number");
 
-                            Client client = new Client(ipAddress, port);
+                            Client client = new Client(ipAddress, port, args[3]);
                             client.Start();
                         }
                         else

@@ -10,17 +10,20 @@ namespace Chat_App_21T1
     {
         IPAddress ipAddress;
         int port;
+        string nickname;
 
-        public Client(IPAddress ipAddress, int port)
+        public Client(IPAddress ipAddress, int port, string nickname)
         {
             this.ipAddress = ipAddress;
             this.port = port;
+            this.nickname = nickname;
         }
 
         public void Start()
         {
             Socket socket;
             Packet packetToSend = new Packet();
+            packetToSend.nickname = nickname;
 
             socket = new Socket(
                 AddressFamily.InterNetwork,
@@ -32,8 +35,7 @@ namespace Chat_App_21T1
             socket.Blocking = false;
             Console.WriteLine("Connected to server!");
 
-            Console.WriteLine("Please enter your nickname!");
-            packetToSend.nickname = Console.ReadLine();
+            socket.Send(ASCIIEncoding.ASCII.GetBytes(nickname));
 
             packetToSend.textColor = Util.GetColorFromNumber(Util.GetColorNumberFromUser());
 
